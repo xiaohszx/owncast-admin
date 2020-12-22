@@ -49,7 +49,7 @@ function InstanceDetails({ config }) {
     return null;
   }
 
-  const { instanceDetails = {}, yp, streamKey, ffmpegPath, webServerPort } = config;
+  const { instanceDetails = {}, yp, streamKey, ffmpegPath, webServerPort, rtmpServerPort } = config;
   
   const data = [
     {
@@ -95,6 +95,10 @@ function InstanceDetails({ config }) {
       name: "Web server port",
       value: webServerPort,
     },
+    {
+      name: "RTMP server port",
+      value: rtmpServerPort,
+    }
   ];
 
   return (
