@@ -1,5 +1,5 @@
 import { Result, Card } from "antd";
-import { MessageTwoTone, BulbTwoTone, BookTwoTone, PlaySquareTwoTone } from '@ant-design/icons';
+import { MessageTwoTone, BookTwoTone, PlaySquareTwoTone } from '@ant-design/icons';
 import OwncastLogo from "./components/logo"
 import LogTable from "./components/log-table";
 
@@ -7,18 +7,6 @@ const { Meta } = Card;
 
 export default function Offline({ logs = [] }) {
   const data = [
-    {
-      icon: <BulbTwoTone twoToneColor="#ffd33d" />,
-      title: "Send some test content",
-      content: (
-        <div>
-          Test your server with any video you have around. Pass it to the test script and start streaming it.
-          <pre>
-            <code>./test/ocTestStream.sh yourVideo.mp4</code>
-          </pre>
-        </div>
-      ),
-    },
     {
       icon: <BookTwoTone twoToneColor="#6f42c1" />,
       title: "Use your broadcasting software",
