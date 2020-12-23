@@ -1,5 +1,5 @@
 import { Result, Card } from "antd";
-import { MessageTwoTone, BookTwoTone, PlaySquareTwoTone } from '@ant-design/icons';
+import { MessageTwoTone, QuestionCircleTwoTone, BookTwoTone, PlaySquareTwoTone } from '@ant-design/icons';
 import OwncastLogo from "./components/logo"
 import LogTable from "./components/log-table";
 
@@ -29,6 +29,17 @@ export default function Offline({ logs = [] }) {
           <a href="https://owncast.online/docs/embed">Learn how you can add your Owncast stream to other sites you control.</a>
         </div>
       )
+    },
+    {
+      icon: <QuestionCircleTwoTone twoToneColor="#ffd33d" />,
+      title: "Need some help?",
+      content: (
+        <div>
+          Take a look at our <a target="_blank" href="https://owncast.online/docs/troubleshooting">troubleshooting steps </a>
+          to see if there's any common problems you're running into.  If you still have questions <a target="_blank" href="https://github.com/owncast/owncast/issues/new/choose">
+            let us know how we can help</a>.
+        </div>
+      ),
     }
   ];
 
