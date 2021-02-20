@@ -132,6 +132,11 @@ export default function CurrentVariantsTable() {
 
   const videoQualityColumns: ColumnsType<VideoVariant> = [
     {
+      title: 'Name',
+      dataIndex: 'name',
+      render: (name: string) => (!name ? 'No name' : name),
+    },
+    {
       title: 'Video bitrate',
       dataIndex: 'videoBitrate',
       key: 'videoBitrate',

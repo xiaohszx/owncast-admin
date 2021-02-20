@@ -55,6 +55,13 @@ const VIDEO_VARIANT_DEFAULTS = {
     placeholder: '720',
     tip: "Optionally resize this content's height.",
   },
+  name: {
+    fieldName: 'name',
+    label: 'Name',
+    maxLength: 12,
+    placeholder: 'HD or Low',
+    tip: 'Human-readable name for for displaying in the quality selector.',
+  }
 };
 interface VideoVariantFormProps {
   dataState: VideoVariant;
@@ -93,6 +100,9 @@ export default function VideoVariantForm({
     }
 
     onUpdateField({ fieldName: 'scaledHeight', value: value || '' });
+  };
+  const handleNameChanged = (args: UpdateArgs) => {
+    onUpdateField({ fieldName: 'name', value: args.value})
   };
   const framerateDefaults = VIDEO_VARIANT_DEFAULTS.framerate;
   const framerateMin = framerateDefaults.min;
@@ -154,11 +164,12 @@ export default function VideoVariantForm({
 
   return (
     <div className="config-variant-form">
-      <p className="description">
-        <a href="https://owncast.online/docs/video">Learn more</a> about how each of these settings
-        can impact the performance of your server.
-      </p>
-
+      <TextField
+        maxLength="10"
+        {...VIDEO_VARIANT_DEFAULTS.name}
+        value={dataState.name}
+        onChange={handleNameChanged}
+      />
       <Row gutter={16}>
         <Col sm={24} md={12}>
           {/* ENCODER PRESET FIELD */}
@@ -213,6 +224,11 @@ export default function VideoVariantForm({
           </div>
         </Col>
       </Row>
+      <p className="description">
+        <a href="https://owncast.online/docs/video">Learn more</a> about how each of these settings
+        can impact the performance of your server.
+      </p>
+
       <Collapse className="advanced-settings">
         <Panel header="Advanced Settings" key="1">
           <p className="description">
