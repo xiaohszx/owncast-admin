@@ -1,5 +1,7 @@
 import React, { useState, useContext, useEffect } from 'react';
-import { Typography } from 'antd';
+import { Button, message, Typography, Upload } from 'antd';
+import { UploadChangeParam, UploadFile } from 'antd/lib/upload/interface';
+import { LoadingOutlined, UploadOutlined } from '@ant-design/icons';
 
 import TextFieldWithSubmit, {
   TEXTFIELD_TYPE_TEXTAREA,
@@ -28,6 +30,9 @@ export default function EditInstanceDetails() {
   const [formDataValues, setFormDataValues] = useState(null);
   const serverStatusData = useContext(ServerStatusContext);
   const { serverConfig } = serverStatusData || {};
+
+  const [logoUrl, setLogoUrl] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   const { instanceDetails, yp } = serverConfig;
   const { instanceUrl } = yp;
@@ -60,6 +65,36 @@ export default function EditInstanceDetails() {
       ...formDataValues,
       [fieldName]: value,
     });
+  };
+
+  function getBase64(img: File | Blob, callback: (imageUrl: string | ArrayBuffer) => void) {
+    const reader = new FileReader();
+    reader.addEventListener('load', () => callback(reader.result));
+    reader.readAsDataURL(img);
+  }
+
+  const beforeUpload = (file) => {
+    // TODO: File validation, cropping?
+    return true;
+  };
+
+  const handleLogoChange = (info: UploadChangeParam<UploadFile<any>>) => {
+    if (info.file.status === 'uploading') {
+      setLoading(true);
+      return;
+    }
+    if (info.file.status === 'done') {
+      // Get this url from response in real world.
+      getBase64(info.file.originFileObj, (imageUrl: string) => {
+        setLogoUrl(imageUrl);
+        setLoading(false);
+      });
+
+      message.success(`${info.file.name} file uploaded successfully`);
+    } else if (info.file.status === 'error') {
+      message.error(`${info.file.name} file upload failed.`);
+      setLoading(false);
+    }
   };
 
   const hasInstanceUrl = instanceUrl !== '';
@@ -97,14 +132,22 @@ export default function EditInstanceDetails() {
         initialValue={instanceDetails.summary}
         onChange={handleFieldChange}
       />
-      <TextFieldWithSubmit
-        fieldName="logo"
-        {...TEXTFIELD_PROPS_LOGO}
-        value={formDataValues.logo}
-        initialValue={instanceDetails.logo}
-        onChange={handleFieldChange}
-      />
-      {instanceDetails.logo && <img src={'/logo'} alt="uploaded logo" className="logo-preview" />}
+
+      <Title level={5} className="section-title">
+        Logo:
+      </Title>
+      <img src={logoUrl || '/logo'} alt="avatar" className="logo-preview" />
+      <Upload
+        name="logo"
+        listType="picture"
+        className="avatar-uploader"
+        showUploadList={false}
+        // action="http://localhost:5000/tmp" TODO: set this to new Owncast logoUpload endpoint
+        beforeUpload={beforeUpload}
+        onChange={handleLogoChange}
+      >
+        {loading ? <LoadingOutlined /> : <Button icon={<UploadOutlined />} />}
+      </Upload>
       <br />
 
       <p className="description">
