@@ -3,7 +3,6 @@ import React, { useEffect, useState } from 'react';
 import LogTable from '../components/log-table';
 import { fetchData, LOGS_ALL } from '../utils/apis';
 
-
 const FETCH_INTERVAL = 5 * 1000; // 5 sec
 
 export default function Logs() {
@@ -14,7 +13,7 @@ export default function Logs() {
     try {
       const result = await fetchData(LOGS_ALL);
 
-      if(result.length !== 0) {
+      if (result.length !== 0) {
         setLogs(result);
       }
 
@@ -38,8 +37,17 @@ export default function Logs() {
     };
   }, []);
 
-  return <>
-    {showConnectionError && <Alert message="Unable to load logs from the Owncast server." type="warning" showIcon style={{marginBottom: "1rem"}} />}
-    <LogTable logs={logs} pageSize={20} />
-  </>;
+  return (
+    <>
+      {showConnectionError && (
+        <Alert
+          message="Unable to load logs from the Owncast server."
+          type="warning"
+          showIcon
+          style={{ marginBottom: '1rem' }}
+        />
+      )}
+      <LogTable logs={logs} pageSize={20} />
+    </>
+  );
 }
