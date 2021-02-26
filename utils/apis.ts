@@ -107,9 +107,8 @@ export async function fetchData(url: string, options?: FetchOptions) {
   } catch (error) {
     // return error;
     // console.log(error)
-    throw new Error(error)
+    throw new Error(error);
   }
-  return {};
 }
 
 export async function getGithubRelease() {
