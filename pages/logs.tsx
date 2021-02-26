@@ -1,18 +1,26 @@
-import React, { useState, useEffect } from 'react';
+import { Alert } from 'antd';
+import React, { useEffect, useState } from 'react';
 import LogTable from '../components/log-table';
+import { fetchData, LOGS_ALL } from '../utils/apis';
 
-import { LOGS_ALL, fetchData } from '../utils/apis';
 
 const FETCH_INTERVAL = 5 * 1000; // 5 sec
 
 export default function Logs() {
   const [logs, setLogs] = useState([]);
+  const [showConnectionError, setShowConnctionError] = useState<boolean>(false);
 
   const getInfo = async () => {
     try {
       const result = await fetchData(LOGS_ALL);
-      setLogs(result);
+
+      if(result.length !== 0) {
+        setLogs(result);
+      }
+
+      setShowConnctionError(false);
     } catch (error) {
+      setShowConnctionError(true);
       console.log('==== error', error);
     }
   };
@@ -30,5 +38,8 @@ export default function Logs() {
     };
   }, []);
 
-  return <LogTable logs={logs} pageSize={20} />;
+  return <>
+    {showConnectionError && <Alert message="Unable to load logs from the Owncast server." type="warning" showIcon style={{marginBottom: "1rem"}} />}
+    <LogTable logs={logs} pageSize={20} />
+  </>;
 }

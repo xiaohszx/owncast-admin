@@ -105,9 +105,9 @@ export async function fetchData(url: string, options?: FetchOptions) {
     }
     return json;
   } catch (error) {
-    return error;
+    // return error;
     // console.log(error)
-    // throw new Error(error)
+    throw new Error(error)
   }
   return {};
 }
