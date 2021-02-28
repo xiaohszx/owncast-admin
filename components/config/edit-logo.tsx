@@ -1,5 +1,5 @@
-import { Button, message, Upload } from 'antd';
-import { UploadChangeParam, UploadFile } from 'antd/lib/upload/interface';
+import { Button, Upload } from 'antd';
+import { RcFile } from 'antd/lib/upload/interface';
 import { LoadingOutlined, UploadOutlined } from '@ant-design/icons';
 import React, { useState, useContext } from 'react';
 import FormStatusIndicator from './form-status-indicator';
@@ -17,6 +17,8 @@ import {
   STATUS_SUCCESS,
 } from '../../utils/input-statuses';
 
+const ACCEPTED_FILE_TYPES = ['image/svg+xml', 'image/png', 'image/jpeg', 'image/gif'];
+
 function getBase64(img: File | Blob, callback: (imageUrl: string | ArrayBuffer) => void) {
   const reader = new FileReader();
   reader.addEventListener('load', () => callback(reader.result));
@@ -24,7 +26,7 @@ function getBase64(img: File | Blob, callback: (imageUrl: string | ArrayBuffer) 
 }
 
 export default function EditLogo() {
-  const [logoUrl, setLogoUrl] = useState(null);
+  const [logoUrl, setlogoUrl] = useState(null);
   const [loading, setLoading] = useState(false);
 
   const serverStatusData = useContext(ServerStatusContext);
@@ -36,30 +38,6 @@ export default function EditLogo() {
 
   const { apiPath, tip } = TEXTFIELD_PROPS_LOGO;
 
-  const beforeUpload = (file) => {
-    // TODO: File validation, cropping?
-    return true;
-  };
-
-  const handleLogoChange = (info: UploadChangeParam<UploadFile<any>>) => {
-    if (info.file.status === 'uploading') {
-      setLoading(true);
-      return;
-    }
-    if (info.file.status === 'done') {
-      // Get this url from response in real world.
-      getBase64(info.file.originFileObj, (imageUrl: string) => {
-        setLogoUrl(imageUrl);
-        setLoading(false);
-      });
-
-      message.success(`${info.file.name} file uploaded successfully`);
-    } else if (info.file.status === 'error') {
-      message.error(`${info.file.name} file upload failed.`);
-      setLoading(false);
-    }
-  };
-
   // Clear out any validation states and messaging
   const resetStates = () => {
     setSubmitStatus(null);
@@ -67,7 +45,28 @@ export default function EditLogo() {
     resetTimer = null;
   };
 
-  // Post new logoUrl to api
+  // validate file type and create base64 encoded img
+  const beforeUpload = (file: RcFile) => {
+    setLoading(true);
+
+    // eslint-disable-next-line consistent-return
+    return new Promise<void>((res, rej) => {
+      if (!ACCEPTED_FILE_TYPES.includes(file.type)) {
+        const msg = `File type is not supported: ${file.type}`;
+        setSubmitStatus(createInputStatus(STATUS_ERROR, `There was an error: ${msg}`));
+        resetTimer = setTimeout(resetStates, RESET_TIMEOUT);
+        setLoading(false);
+        return rej();
+      }
+
+      getBase64(file, (url: string) => {
+        setlogoUrl(url);
+        return res();
+      });
+    });
+  };
+
+  // Post new logo to api
   const handleLogoUpdate = async () => {
     if (logoUrl !== currentLogo) {
       setSubmitStatus(createInputStatus(STATUS_PROCESSING));
@@ -78,9 +77,11 @@ export default function EditLogo() {
         onSuccess: () => {
           setFieldInConfigState({ fieldName: 'logo', value: logoUrl, path: '' });
           setSubmitStatus(createInputStatus(STATUS_SUCCESS));
+          setLoading(false);
         },
         onError: (msg: string) => {
           setSubmitStatus(createInputStatus(STATUS_ERROR, `There was an error: ${msg}`));
+          setLoading(false);
         },
       });
       resetTimer = setTimeout(resetStates, RESET_TIMEOUT);
@@ -101,21 +102,17 @@ export default function EditLogo() {
             listType="picture"
             className="avatar-uploader"
             showUploadList={false}
-            // action="http://localhost:5000/tmp" TODO: set this to new Owncast logoUpload endpoint
+            accept={ACCEPTED_FILE_TYPES.join(',')}
             beforeUpload={beforeUpload}
-            onChange={handleLogoChange}
+            customRequest={handleLogoUpdate}
+            disabled={loading}
           >
-            {loading ? <LoadingOutlined /> : <Button icon={<UploadOutlined />} />}
+            {loading ? (
+              <LoadingOutlined style={{ color: 'white' }} />
+            ) : (
+              <Button icon={<UploadOutlined />} />
+            )}
           </Upload>
-          <Button
-            type="primary"
-            size="small"
-            className="submit-button"
-            onClick={handleLogoUpdate}
-            disabled={!logoUrl || logoUrl === currentLogo}
-          >
-            Update
-          </Button>
         </div>
         <FormStatusIndicator status={submitStatus} />
         <p className="field-tip">{tip}</p>
